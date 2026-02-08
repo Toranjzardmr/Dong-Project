@@ -1,0 +1,146 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ group.name }} - Group Details{% endblock %}
+
+{% block body %}
+
+<div class="container my-4">
+
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">{{ group.name }}</h2>
+            {% if group.description %}
+                <p class="text-muted mb-0">{{ group.description }}</p>
+            {% endif %}
+        </div>
+
+        <div>
+            {% if user == group.creator %}
+                <a href="#" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit Group
+                </a>
+            {% endif %}
+            <a href="#" class="btn btn-sm btn-success ms-2">
+                <i class="bi bi-plus-lg"></i> Add Expense
+            </a>
+        </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-muted">Total Expenses</h5>
+                    <h3 class="fw-bold">
+                        ${{ group.get_total_expenses|floatformat:2 }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-muted">Members</h5>
+                    <h3 class="fw-bold">{{ members.count }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-muted">Created</h5>
+                    <h5 class="mb-0">{{ group.created_at|date:"d M Y" }}</h5>
+                    <small class="text-muted">by {{ group.creator.username|default:"Unknown" }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Members List -->
+    <h4 class="mb-3">Group Members</h4>
+    <div class="card shadow-sm mb-5">
+        <div class="card-body">
+            {% if members %}
+                <ul class="list-group list-group-flush">
+                    {% for member in members %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ member.username }}</strong>
+                                {% if member == group.creator %}
+                                    <span class="badge bg-primary ms-2">Creator</span>
+                                {% endif %}
+                                {% if member == user %}
+                                    <span class="badge bg-success ms-2">You</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">Joined {{ member.date_joined|date:"d M Y" }}</small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted text-center my-4">No members yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Expenses List -->
+    <h4 class="mb-3 d-flex justify-content-between align-items-center">
+        Recent Expenses
+        <a href="#" class="btn btn-sm btn-outline-secondary">
+            View All →
+        </a>
+    </h4>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            {% if group.expenses.exists %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Description</th>
+                                <th>Paid by</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in group.expenses.all|slice:":8" %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-medium">{{ expense.name }}</div>
+                                        {% if expense.note %}
+                                            <small class="text-muted">{{ expense.note|truncatechars:60 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ expense.paid_by.username }}</td>
+                                    <td class="fw-bold">${{ expense.amount|floatformat:2 }}</td>
+                                    <td>{{ expense.date|date:"d M Y" }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-info">
+                                            Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted mb-2">No expenses added yet.</p>
+                    <a href="#" class="btn btn-outline-primary">
+                        Add your first expense
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

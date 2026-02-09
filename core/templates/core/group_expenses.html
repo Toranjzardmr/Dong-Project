@@ -1,0 +1,105 @@
+{% extends 'core/base.html' %}
+{% block title %}Expenses - {{ group.name }}{% endblock %}
+
+{% block body %}
+
+<div class="container my-4 my-lg-5">
+
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="mb-1">{{ group.name }}</h2>
+            <p class="text-muted mb-0">All expenses</p>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'core:group_detail' group.id %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left">Back to Group</i>
+            </a>
+            <a href="{% url 'core:expense_add' group.id %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg">Add New Expense</i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Total summary card -->
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card-body text-center py-4">
+            <h6 class="text-muted mb-1">Total Expenses</h6>
+            <h3 class="fw-bold text-primary">
+                ${{ group.get_total_expenses|floatformat:2 }}
+            </h3>
+        </div>
+    </div>
+
+    <!-- Expenses list -->
+    {% if expenses %}
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Description</th>
+                                <th>Paid by</th>
+                                <th class="text-end">Amount</th>
+                                <th>Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in expenses %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-medium">{{ expense.name }}</div>
+                                        {% if expense.note %}
+                                            <small class="text-muted d-block mt-1">
+                                                {{ expense.note|truncatechars:80 }}
+                                            </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ expense.paid_by.username }}
+                                    </td>
+                                    <td class="text-end fw-bold text-success">
+                                        €{{ expense.amount|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        {{ expense.date|date:"d M Y" }}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'core:expense_detail' expense.id %}" class="btn btn-sm btn-outline-primary">
+                                            Details
+                                        </a>
+                                        <a href="{% url 'core:expense_delete' expense.id %}" class="btn btn-sm btn-outline-danger">
+                                            Delete
+                                        </a>
+                                    </td>
+                                    
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional pagination if you add it later -->
+        <!-- {% if is_paginated %} ... {% endif %} -->
+
+    {% else %}
+        <div class="text-center py-5 my-5">
+            <div class="mb-4">
+                <i class="bi bi-receipt-cutoff display-1 text-muted"></i>
+            </div>
+            <h5 class="text-muted mb-3">No expenses yet in this group</h5>
+            <p class="text-muted mb-4">Start by adding your first expense</p>
+            <a href="{% url 'expense_add' group.id %}" class="btn btn-lg btn-primary">
+                <i class="bi bi-plus-circle me-2"></i> Add First Expense
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

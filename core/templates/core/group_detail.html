@@ -16,12 +16,12 @@
 
         <div>
             {% if user == group.creator %}
-                <a href="#" class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-pencil"></i> Edit Group
+                <a href="{% url 'core:group_update' group.id %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil">Edit Group</i>
                 </a>
             {% endif %}
-            <a href="#" class="btn btn-sm btn-success ms-2">
-                <i class="bi bi-plus-lg"></i> Add Expense
+            <a href="{% url 'core:expense_add' group.id %}" class="btn btn-sm btn-success ms-2">
+                <i class="bi bi-plus-lg">Add Expense</i>
             </a>
         </div>
     </div>
@@ -89,9 +89,7 @@
     <!-- Expenses List -->
     <h4 class="mb-3 d-flex justify-content-between align-items-center">
         Recent Expenses
-        <a href="#" class="btn btn-sm btn-outline-secondary">
-            View All →
-        </a>
+        <a href="{% url 'core:group_expenses' group.id %}" class="btn btn-sm btn-outline-secondary">View All →</a>
     </h4>
 
     <div class="card shadow-sm">
@@ -121,9 +119,7 @@
                                     <td class="fw-bold">${{ expense.amount|floatformat:2 }}</td>
                                     <td>{{ expense.date|date:"d M Y" }}</td>
                                     <td>
-                                        <a href="#" class="btn btn-sm btn-outline-info">
-                                            Details
-                                        </a>
+                                        <a href="{% url 'core:expense_detail' expense.id %}" class="btn btn-sm btn-outline-primary">Details</a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -133,9 +129,7 @@
             {% else %}
                 <div class="text-center py-5">
                     <p class="text-muted mb-2">No expenses added yet.</p>
-                    <a href="#" class="btn btn-outline-primary">
-                        Add your first expense
-                    </a>
+                    <a href="#" class="btn btn-outline-primary">Add your first expense</a>
                 </div>
             {% endif %}
         </div>

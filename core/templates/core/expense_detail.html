@@ -120,12 +120,16 @@
                                         {% endif %}
                                     </td>
                                     <td class="text-end">
-                                        {% if share.amount_owed > 0 %}
-                                            <span class="badge bg-warning">To pay</span>
-                                        {% elif share.amount_owed == 0 %}
+                                        {% if share.user == expense.paid_by %}
                                             <span class="badge bg-success">Settled</span>
                                         {% else %}
-                                            <span class="badge bg-secondary">N/A</span>
+                                            {% if share.amount_owed > 0 %}
+                                                <span class="badge bg-warning">To pay</span>
+                                            {% elif share.amount_owed == 0 %}
+                                                <span class="badge bg-success">Settled</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">N/A</span>
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                 </tr>

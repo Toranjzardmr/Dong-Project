@@ -70,6 +70,16 @@ class Expense(models.Model):
     note = models.TextField(max_length=200, null=True, blank=True)
 
 
+    def save(self, *args, **kwargs):
+       
+        super().save(*args, **kwargs)
+
+        self.shares.all().delete()
+
+        if self.participants.exists():
+            self.calculate_and_save_shares()
+
+
     def clean(self):
         if self.amount < 0 :
             raise ValidationError('The amount needs to be a positive number !')
@@ -89,7 +99,7 @@ class Expense(models.Model):
                 ExpenseShare.objects.create(
                     user = user,
                     expense = self,
-                    amount_owed = share_amount if user != self.paid_by else Decimal('0.00')
+                    amount_owed = share_amount if user != self.paid_by else (self.amount - share_amount)
                 )
         if self.split_type == 'percerntage' or self.split_type == 'exact' :
             pass
@@ -101,7 +111,11 @@ class Expense(models.Model):
 class ExpenseShare(models.Model):
 
     def __str__(self):
-        return f'{self.user} owes {self.amount_owed} in {self.expense}'
+        
+        if self.user == self.expense.paid_by :
+            return f'{self.user} gets back {self.amount_owed} in {self.expense}'
+        else:
+            return f'{self.user} ows {self.amount_owed} in {self.expense}'
     
     expense = models.ForeignKey(Expense, on_delete=models.CASCADE, related_name='shares')
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)

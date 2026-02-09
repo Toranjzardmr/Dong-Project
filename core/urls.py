@@ -14,6 +14,6 @@ urlpatterns = [
     path('groups/<int:pk>/expenses/', views.group_expenses, name='group_expenses'),
     path('groups/<int:pk>/expenses/new/', views.expense_add, name='expense_add'),
     path('expenses/<int:id>/', views.expense_detail, name='expense_detail'),
-    path('/expenses/<int:id>/update/', views.expense_update, name='expense_update'),
+    path('expenses/<int:id>/update/', views.expense_update, name='expense_update'),
     path('expenses/<int:id>/delete/', views.expense_delete, name='expense_delete'),
 ]

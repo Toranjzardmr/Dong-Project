@@ -45,9 +45,12 @@ def group_detail(request,pk):
     group = models.Group.objects.get(id=pk)
     members = group.members.all()
 
+    balances = {user.username: amount for user, amount in group.get_balance_summary().items()}
+
     context = {
         'group' : group,
         'members' : members,
+        'balances': balances,
     }
     return render(request,'core/group_detail.html', context)
 
@@ -106,8 +109,8 @@ def expense_add(request, pk):
             new_expense.save()
 
             form.save_m2m()
-
             new_expense.calculate_and_save_shares()
+
 
             return redirect('core:group_detail', group.id)
 
@@ -138,9 +141,8 @@ def expense_update(request,id):
     form = forms.ExpenseCreationForm(request.POST or None, instance=expense)
 
     if form.is_valid():
-        updated_expense = form.save()
+        form.save()
 
-        updated_expense.calculate_and_save_shares()
         return redirect('core:expense_detail', expense.id)
    
     context = {
@@ -152,7 +154,9 @@ def expense_update(request,id):
 
 def expense_delete(request,id) :
 
-    get_object_or_404(models.Expense, id = id).delete()
-    messages.success('Expense Deleted Successfully.')
+    expense = get_object_or_404(models.Expense, id = id)
+    group = expense.group
+    expense.delete()
+    messages.success(request, 'Expense Deleted Successfully.')
 
-    return redirect('core:home')
+    return redirect('core:group_detail', group.id)

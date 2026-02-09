@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load balance_tags %}
 {% block title %}{{ group.name }} - Group Details{% endblock %}
 
 {% block body %}
@@ -59,29 +60,59 @@
         </div>
     </div>
 
-    <!-- Members List -->
-    <h4 class="mb-3">Group Members</h4>
+   <!-- Group Members & Balances -->
+    <h4 class="mb-3">Group Members & Balances</h4>
+
     <div class="card shadow-sm mb-5">
-        <div class="card-body">
+        <div class="card-body p-0">
             {% if members %}
-                <ul class="list-group list-group-flush">
-                    {% for member in members %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ member.username }}</strong>
-                                {% if member == group.creator %}
-                                    <span class="badge bg-primary ms-2">Creator</span>
-                                {% endif %}
-                                {% if member == user %}
-                                    <span class="badge bg-success ms-2">You</span>
-                                {% endif %}
-                            </div>
-                            <small class="text-muted">Joined {{ member.date_joined|date:"d M Y" }}</small>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Member</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-end">Overall Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ member.username }}</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if member == group.creator %}
+                                            <span class="badge bg-primary">Creator</span>
+                                        {% endif %}
+                                        {% if member == user %}
+                                            <span class="badge bg-success">You</span>
+                                        {% endif %}
+                                        {% if not member == group.creator and not member == user %}
+                                            <span class="badge bg-secondary">Member</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end fw-bold">
+                                        {% with balance=balances|get_item:member.username %}
+                                            {% if balance > 0 %}
+                                                <span class="text-success">+€{{ balance|floatformat:2 }}</span>
+                                            {% elif balance < 0 %}
+                                                <span class="text-danger">€{{ balance|floatformat:2 }}</span>
+                                            {% else %}
+                                                <span class="text-muted">€0.00</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             {% else %}
-                <p class="text-muted text-center my-4">No members yet.</p>
+                <div class="text-center py-5">
+                    <p class="text-muted mb-3">No members in this group yet.</p>
+                    <small class="text-muted">Invite some friends to get started!</small>
+                </div>
             {% endif %}
         </div>
     </div>

@@ -141,7 +141,7 @@ class Expense(models.Model):
                 ExpenseShare.objects.create(
                     user = user,
                     expense = self,
-                    amount_owed = share_amount if user != self.paid_by else (self.amount - share_amount)
+                    amount_owed = share_amount
                 )
         if self.split_type == 'percerntage' or self.split_type == 'exact' :
             pass

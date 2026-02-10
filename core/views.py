@@ -46,11 +46,16 @@ def group_detail(request,pk):
     members = group.members.all()
 
     balances = {user.username: amount for user, amount in group.get_balance_summary().items()}
+    debts = group.get_settlement_overview()
+
+    print(balances)
+    print(debts)
 
     context = {
         'group' : group,
         'members' : members,
         'balances': balances,
+        'debts' : debts,
     }
     return render(request,'core/group_detail.html', context)
 

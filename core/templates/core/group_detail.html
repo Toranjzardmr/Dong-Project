@@ -60,111 +60,167 @@
         </div>
     </div>
 
-   <!-- Group Members & Balances -->
-    <h4 class="mb-3">Group Members & Balances</h4>
+    <div class="row g-4">
 
-    <div class="card shadow-sm mb-5">
-        <div class="card-body p-0">
-            {% if members %}
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Member</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-end">Overall Balance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for member in members %}
-                                <tr>
-                                    <td>
-                                        <strong>{{ member.username }}</strong>
-                                    </td>
-                                    <td class="text-center">
-                                        {% if member == group.creator %}
-                                            <span class="badge bg-primary">Creator</span>
-                                        {% endif %}
-                                        {% if member == user %}
-                                            <span class="badge bg-success">You</span>
-                                        {% endif %}
-                                        {% if not member == group.creator and not member == user %}
-                                            <span class="badge bg-secondary">Member</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-end fw-bold">
-                                        {% with balance=balances|get_item:member.username %}
-                                            {% if balance > 0 %}
-                                                <span class="text-success">+€{{ balance|floatformat:2 }}</span>
-                                            {% elif balance < 0 %}
-                                                <span class="text-danger">€{{ balance|floatformat:2 }}</span>
-                                            {% else %}
-                                                <span class="text-muted">€0.00</span>
-                                            {% endif %}
-                                        {% endwith %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <div class="col-lg-7">
+            <!-- Group Members & Balances -->
+            <h4 class="mb-3">Group Members & Balances</h4>
+
+            <div class="card shadow-sm mb-5">
+                <div class="card-body p-0">
+                    {% if members %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Member</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-end">Overall Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for member in members %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ member.username }}</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                {% if member == group.creator %}
+                                                    <span class="badge bg-primary">Creator</span>
+                                                {% endif %}
+                                                {% if member == user %}
+                                                    <span class="badge bg-success">You</span>
+                                                {% endif %}
+                                                {% if not member == group.creator and not member == user %}
+                                                    <span class="badge bg-secondary">Member</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end fw-bold">
+                                                {% with balance=balances|get_item:member.username %}
+                                                    {% if balance > 0 %}
+                                                        <span class="text-success">+€{{ balance|floatformat:2 }}</span>
+                                                    {% elif balance < 0 %}
+                                                        <span class="text-danger">€{{ balance|floatformat:2 }}</span>
+                                                    {% else %}
+                                                        <span class="text-muted">€0.00</span>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <p class="text-muted mb-3">No members in this group yet.</p>
+                            <small class="text-muted">Invite some friends to get started!</small>
+                        </div>
+                    {% endif %}
                 </div>
+            </div>
+
+            <!-- Expenses List -->
+            <h4 class="mb-3 d-flex justify-content-between align-items-center">
+                Recent Expenses
+                <a href="{% url 'core:group_expenses' group.id %}" class="btn btn-sm btn-outline-secondary">View All →</a>
+            </h4>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    {% if group.expenses.exists %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Paid by</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for expense in group.expenses.all|slice:":8" %}
+                                        <tr>
+                                            <td>
+                                                <div class="fw-medium">{{ expense.name }}</div>
+                                                {% if expense.note %}
+                                                    <small class="text-muted">{{ expense.note|truncatechars:60 }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ expense.paid_by.username }}</td>
+                                            <td class="fw-bold">${{ expense.amount|floatformat:2 }}</td>
+                                            <td>{{ expense.date|date:"d M Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'core:expense_detail' expense.id %}" class="btn btn-sm btn-outline-primary">Details</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <p class="text-muted mb-2">No expenses added yet.</p>
+                            <a href="#" class="btn btn-outline-primary">Add your first expense</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-5">
+            <!-- Group Members & Balances -->
+             
+            <h4 class="mb-4">Debts Overview</h4>
+
+            {% if debts %}
+                {% for member in members %}
+                    {% with member_debts=debts|filter_debts_from:member %}
+                        {% if member_debts %}
+                            <div class="card shadow-sm mb-4 border-0">
+                                <div class="card-header bg-light fw-bold d-flex align-items-center">
+                                    {{ member.username }}
+                                    {% if member == user %}
+                                        <span class="badge bg-success ms-2">You</span>
+                                    {% endif %}
+                                    {% if member == group.creator %}
+                                        <span class="badge bg-primary ms-2">Creator</span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        {% for debt in member_debts %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                                <div>
+                                                    owes
+                                                    <strong>{{ debt.to.username }}</strong>
+                                                </div>
+                                                <span class="badge bg-danger px-3">
+                                                    €{{ debt.amount|floatformat:2 }}
+                                                </span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                {% endfor %}
             {% else %}
-                <div class="text-center py-5">
-                    <p class="text-muted mb-3">No members in this group yet.</p>
-                    <small class="text-muted">Invite some friends to get started!</small>
+                <div class="alert alert-success text-center py-4">
+                    همه حساب‌ها تسویه شده ✓ هیچ بدهی فعالی در گروه وجود ندارد
                 </div>
             {% endif %}
+
         </div>
+
     </div>
 
-    <!-- Expenses List -->
-    <h4 class="mb-3 d-flex justify-content-between align-items-center">
-        Recent Expenses
-        <a href="{% url 'core:group_expenses' group.id %}" class="btn btn-sm btn-outline-secondary">View All →</a>
-    </h4>
-
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            {% if group.expenses.exists %}
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Description</th>
-                                <th>Paid by</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for expense in group.expenses.all|slice:":8" %}
-                                <tr>
-                                    <td>
-                                        <div class="fw-medium">{{ expense.name }}</div>
-                                        {% if expense.note %}
-                                            <small class="text-muted">{{ expense.note|truncatechars:60 }}</small>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ expense.paid_by.username }}</td>
-                                    <td class="fw-bold">${{ expense.amount|floatformat:2 }}</td>
-                                    <td>{{ expense.date|date:"d M Y" }}</td>
-                                    <td>
-                                        <a href="{% url 'core:expense_detail' expense.id %}" class="btn btn-sm btn-outline-primary">Details</a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <p class="text-muted mb-2">No expenses added yet.</p>
-                    <a href="#" class="btn btn-outline-primary">Add your first expense</a>
-                </div>
-            {% endif %}
-        </div>
     </div>
+   
 
 </div>
 

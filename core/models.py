@@ -45,6 +45,48 @@ class Group(models.Model):
                 balances[share.user] -= share.amount_owed
         return dict(balances)
     
+
+    def get_settlement_overview(self):
+        """
+        Returns minimal list of suggested payments after netting opposite debts
+        """
+        
+        # مرحله ۱: جمع بدهی‌های مستقیم (from → to)
+        aggregated = defaultdict(Decimal)
+        
+        for expense in self.expenses.all():
+            for share in expense.shares.filter(amount_owed__gt=0):
+                if share.user != expense.paid_by:
+                    key = (share.user, expense.paid_by)  # (debtor, creditor)
+                    aggregated[key] += share.amount_owed
+
+        # مرحله ۲: netting (جبران بدهی‌های دوطرفه)
+        net_debts = {}
+        for (u1, u2), amt12 in aggregated.items():
+            # چک کن آیا جهت معکوس وجود داره
+            reverse_key = (u2, u1)
+            amt21 = aggregated.get(reverse_key, Decimal('0.00'))
+            
+            if amt12 > amt21:
+                net_debts[(u1, u2)] = amt12 - amt21
+            elif amt21 > amt12:
+                net_debts[(u2, u1)] = amt21 - amt12
+            # اگر برابر بودند → هیچی نمی‌مونه
+
+        # مرحله ۳: تبدیل به لیست مرتب‌شده
+        debts = []
+        for (from_user, to_user), amount in net_debts.items():
+            if amount > 0:
+                debts.append({
+                    'from': from_user,
+                    'to': to_user,
+                    'amount': amount,
+                })
+        
+        # مرتب‌سازی نزولی
+        debts.sort(key=lambda x: x['amount'], reverse=True)
+        
+        return debts
     
 
 
@@ -120,6 +162,6 @@ class ExpenseShare(models.Model):
     expense = models.ForeignKey(Expense, on_delete=models.CASCADE, related_name='shares')
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     amount_owed = models.DecimalField(max_digits=15, decimal_places=2)
-
+    
     class Meta :
         unique_together = ['expense', 'user']

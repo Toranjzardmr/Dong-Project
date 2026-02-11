@@ -60,11 +60,16 @@
         </div>
     </div>
 
+
     <div class="row g-4">
 
         <div class="col-lg-7">
             <!-- Group Members & Balances -->
-            <h4 class="mb-3">Group Members & Balances</h4>
+            <h4 class="mb-3 d-flex justify-content-between align-items-center">
+                Group Members & Balances
+                <button type="button" class="btn btn-outline-primary btn-sm" id="copyInviteBtn">Invite Friends</button>
+                <small id="copyFeedback" class="text-success ms-2" style="display: none;">Copied ✓</small>
+            </h4>
 
             <div class="card shadow-sm mb-5">
                 <div class="card-body p-0">
@@ -172,7 +177,7 @@
         </div>
 
         <div class="col-lg-5">
-            <!-- Group Members & Balances -->
+            <!-- Indivisual Debts -->
              
             <h4 class="mb-4">Debts Overview</h4>
 
@@ -223,5 +228,36 @@
    
 
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('copyInviteBtn');
+        const feedback = document.getElementById('copyFeedback');
+        const inviteLink = "{{ group.get_invite_link|escapejs }}";
+
+        if (!btn || !inviteLink) return;
+
+        btn.addEventListener('click', () => {
+            navigator.clipboard.writeText(inviteLink)
+                .then(() => {
+                    // موفقیت
+                    btn.textContent = 'Copied!';
+                    btn.setAttribute('class', 'btn btn-sm btn-success');
+                    
+                    setTimeout(() => {
+                        btn.textContent = 'Copy Invite Link';
+                        btn.setAttribute('class', 'btn btn-sm btn-outline-primary');
+                    }, 2200);
+                })
+                .catch(err => {
+                    console.error('Failed to copy invite link:', err);
+                    alert('Failed to copy invite link. Please try manually copying: ' + inviteLink);
+                });
+        });
+    });
+</script>
 
 {% endblock %}

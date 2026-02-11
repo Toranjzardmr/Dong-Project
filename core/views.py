@@ -48,14 +48,14 @@ def group_detail(request,pk):
     balances = {user.username: amount for user, amount in group.get_balance_summary().items()}
     debts = group.get_settlement_overview()
 
-    print(balances)
-    print(debts)
+    group_invite_link = group.get_invite_link()
 
     context = {
         'group' : group,
         'members' : members,
         'balances': balances,
         'debts' : debts,
+        'group_invite_link' : group_invite_link,
     }
     return render(request,'core/group_detail.html', context)
 
@@ -80,6 +80,19 @@ def group_delete(request,pk):
     models.Group.objects.get(id = pk).delete()
 
     return redirect('core:home')
+
+
+def group_join(request, invite_link):
+
+    group = get_object_or_404(models.Group, invite_link=invite_link)
+    
+    if request.user in group.members.all():
+        messages.info(request, "You are already a member of this group.")
+    else:
+        group.members.add(request.user)
+        messages.success(request, f"You have successfully joined the group '{group.name}'.")
+
+    return redirect('core:group_detail', group.id)
 
 """
 ================================

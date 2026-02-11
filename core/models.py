@@ -5,6 +5,8 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.conf import settings
+import uuid
 
 # Create your models here.
 
@@ -24,10 +26,14 @@ class Group(models.Model):
         related_name='created_groups'
         )
     created_at = models.DateField(auto_now_add=True)
+    invite_link = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, db_index=True)
 
 
     class Meta :
         ordering = ["-created_at"]
+
+    def get_invite_link(self):
+        return f"{settings.BASE_URL}/groups/join/{self.invite_link}/"
 
     def get_total_expenses(self):
         

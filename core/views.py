@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render, get_object_or_404, get_list_or_404
 from django.contrib import messages
 from . import models, forms
+from django.contrib.auth import get_user_model
 
 # Create your views here.
 
@@ -91,6 +92,23 @@ def group_join(request, invite_link):
     else:
         group.members.add(request.user)
         messages.success(request, f"You have successfully joined the group '{group.name}'.")
+
+    return redirect('core:group_detail', group.id)
+
+
+def member_remove(request, pk, user_id):
+
+    group = get_object_or_404(models.Group,pk = pk)
+    user_to_delete = get_object_or_404(get_user_model(), id = user_id)
+    
+    if request.user != group.creator:
+        messages.error(request, "You don't have permission to remove members from this group.")
+        return redirect('core:group_detail', group.id)
+
+    group.members.remove(user_to_delete)
+    models.Expense.participants.through.objects.filter(expense__group=group, customuser=user_to_delete).delete()
+
+    messages.success(request, f"User '{user_to_delete.username}' has been removed from the group.")
 
     return redirect('core:group_detail', group.id)
 

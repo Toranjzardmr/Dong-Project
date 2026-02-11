@@ -11,6 +11,7 @@ urlpatterns = [
     path('groups/<int:pk>/update/', views.group_update, name='group_update'),
     path('groups/<int:pk>/delete/', views.group_delete, name='group_delete'),
     path('groups/join/<uuid:invite_link>/', views.group_join, name='group_join'),
+    path('groups/<int:pk>/remove/<int:user_id>/', views.member_remove, name='member_remove'),
 
     #Expenses
     path('groups/<int:pk>/expenses/', views.group_expenses, name='group_expenses'),

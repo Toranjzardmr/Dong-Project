@@ -79,7 +79,10 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Member</th>
-                                        <th class="text-center">Status</th>
+                                        <th {% if user != group.creator %}class="text-center"{% endif %}>Status</th>
+                                        {% if user == group.creator %}
+                                            <th>Actions</th>
+                                        {% endif %}
                                         <th class="text-end">Overall Balance</th>
                                     </tr>
                                 </thead>
@@ -89,7 +92,7 @@
                                             <td>
                                                 <strong>{{ member.username }}</strong>
                                             </td>
-                                            <td class="text-center">
+                                            <td {% if user != group.creator %}class="text-center"{% endif %}>
                                                 {% if member == group.creator %}
                                                     <span class="badge bg-primary">Creator</span>
                                                 {% endif %}
@@ -100,6 +103,11 @@
                                                     <span class="badge bg-secondary">Member</span>
                                                 {% endif %}
                                             </td>
+                                            {% if user == group.creator %}
+                                                <td>
+                                                    <a href="{% url 'core:member_remove' group.id member.id %}" class="btn btn-sm btn-outline-danger">Remove</a>
+                                                </td>
+                                            {% endif %}
                                             <td class="text-end fw-bold">
                                                 {% with balance=balances|get_item:member.username %}
                                                     {% if balance > 0 %}

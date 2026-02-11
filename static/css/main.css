@@ -8,3 +8,28 @@ z-index: 1;
 bottom:0;
 width:100%;
 }
+
+body{
+    background-color: #EDF1FE;
+}
+/* بهتر کردن ظاهر چک‌باکس‌ها */
+.form-check {
+    margin-bottom: 0.5rem;
+    padding-right: 1.5rem; /* برای زبان راست به چپ */
+}
+
+.form-check-input {
+    margin-left: 0.75rem;
+    margin-right: -1.25rem; /* تنظیم برای راست‌چین */
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* اسکرول زیباتر */
+.border.rounded-3.bg-light {
+    scrollbar-width: thin;
+    scrollbar-color: #adb5bd #f8f9fa;
+}

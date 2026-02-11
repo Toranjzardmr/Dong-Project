@@ -79,12 +79,9 @@
                                 <label class="form-label fw-semibold">
                                     Who should share this expense? <span class="text-danger">*</span>
                                 </label>
-                                <div class="border rounded-3 p-3 bg-light">
+                                <div class="border rounded-3 p-3 bg-light" style="min-height: 150px ; max-height: 320px; overflow-y: auto;">
                                     {{ form.participants }}
-                                </div>
-                                {{ form.participants.errors }}
-                                <div class="form-text text-muted mt-2 small">
-                                    Hold Ctrl (Windows) or Cmd (Mac) to select multiple members
+                                    {{ form.participants.errors }}
                                 </div>
                             </div>
 

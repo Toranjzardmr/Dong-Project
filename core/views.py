@@ -146,7 +146,8 @@ def expense_update(request,id):
     form = forms.ExpenseCreationForm(request.POST or None, instance=expense)
 
     if form.is_valid():
-        form.save()
+        updated_expense = form.save()
+        updated_expense.calculate_and_save_shares()
 
         return redirect('core:expense_detail', expense.id)
    

@@ -128,6 +128,8 @@ class Expense(models.Model):
         
         
     def calculate_and_save_shares(self):
+
+        self.shares.all().delete()
         
         participants = self.participants.all()
         if not participants.exists() :

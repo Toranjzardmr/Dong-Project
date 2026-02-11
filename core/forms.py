@@ -31,7 +31,7 @@ class ExpenseCreationForm(forms.ModelForm):
             'note': forms.Textarea(attrs={'rows': 2, 'class': 'form-control', 'placeholder': 'Add more information...'}),
             'paid_by': forms.Select(attrs={'class': 'form-select'}),
             'split_type': forms.Select(attrs={'class': 'form-select'}),
-            'participants': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'participants': forms.CheckboxSelectMultiple(attrs={'class': 'form-check'}),
         }
         def __init__(self, group: models.Group, *args, **kwargs):
             super().__init__(*args, **kwargs)

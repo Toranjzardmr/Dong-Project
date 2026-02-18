@@ -16,3 +16,10 @@ class UserRegisterForm(forms.ModelForm):
         if self.cleaned_data['password'] != self.cleaned_data['password2']:
             raise forms.ValidationError('Passwords do not match !')
         
+
+class ProfileEditForm(forms.ModelForm):
+
+    class Meta:
+
+        model = get_user_model()
+        fields = ['username', 'email', 'profile_photo']

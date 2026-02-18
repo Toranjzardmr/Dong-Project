@@ -2,9 +2,11 @@ from django.shortcuts import redirect, render, get_object_or_404, get_list_or_40
 from django.contrib import messages
 from . import models, forms
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
+@login_required
 def index(request):
     
     user_groups = models.Group.objects.filter(members = request.user)

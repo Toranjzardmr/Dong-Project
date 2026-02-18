@@ -147,6 +147,11 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles" 
 
+# Media files
+
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
+
 #Front-end
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'

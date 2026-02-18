@@ -1,5 +1,4 @@
 footer {
-position: absolute;
 text-align: left;
 background-color: #f4f4f4;
 padding-top: 40px;
@@ -7,10 +6,22 @@ padding-bottom: 40px;
 z-index: 1;
 bottom:0;
 width:100%;
+flex-shrink: 0;
 }
 
 html, body {
     background-color: #EDF1FE;
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
 }
 
 /* بهتر کردن ظاهر چک‌باکس‌ها */

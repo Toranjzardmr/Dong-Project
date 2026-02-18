@@ -1,0 +1,230 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Profile - {{ user.username }}{% endblock %}
+
+{% block body %}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                
+                <!-- card header -->
+                <div class="card-header bg-gradient-primary text-center py-5 position-relative">
+                    <div class="profile-photo-container mx-auto">
+                        {% if user.profile_photo %}
+                            <img src="{{ user.profile_photo.url }}"
+                                 alt="{{ user.username }} Profile photo"
+                                 class="rounded-circle img-fluid shadow border border-4 border-white"
+                                 style="width: 140px; height: 140px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    <h3 class="mt-3 mb-1 fw-bold">{{ user.get_full_name|default:user.username }}</h3>
+                    <p class="mb-0 opacity-75">{{ user.email }}</p>
+
+                    <!-- Quick action buttons -->
+                    <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="{% url 'accounts:search_users' %}" class="btn btn-light btn-sm px-4">
+                            <i class="bi bi-search me-2"></i> Search users
+                        </a>
+                        <!-- Copy Friend link -->
+                            <button 
+                                type="button" 
+                                id="copyFriendBtn"
+                                class="btn btn-light btn-sm px-4" 
+                                data-bs-toggle="tooltip" 
+                                title="Copy your friend link"
+                                onclick="copyFriendLink()"
+                            >
+                                <i class="bi bi-link-45deg me-2"></i> Friend link
+                            </button>
+
+                            
+                    </div>
+
+                    
+                    <!-- Hidden input for copying -->
+                    <input type="hidden" id="friendLink" value="{% url 'accounts:add_friend' user.id %}" >
+                    
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body p-4 p-md-5">
+
+                    <!-- Basic information -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-person-fill fs-4 text-primary me-3"></i>
+                                <div>
+                                    <small class="text-muted d-block">Username</small>
+                                    <strong>{{ user.username }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar-check fs-4 text-primary me-3"></i>
+                                <div>
+                                    <small class="text-muted d-block">Member since</small>
+                                    <strong>{{ user.date_joined|date:"Y/m/d" }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My groups -->
+                    <h5 class="mb-4 fw-semibold border-bottom pb-2">
+                        My groups
+                        <span class="badge bg-primary rounded-pill ms-2">{{ groups.count }}</span>
+                    </h5>
+
+                    {% if groups.exists %}
+                        <div class="list-group list-group-flush">
+                            {% for group in groups %}
+                                <a href="{% url 'core:group_detail' group.id %}" 
+                                   class="list-group-item list-group-item-action px-0 py-3 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded-circle p-3 me-3">
+                                                <i class="bi bi-people-fill fs-4 text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1 fw-bold">{{ group.name }}</h6>
+                                                {% if group.description %}
+                                                    <small class="text-muted d-block">
+                                                        {{ group.description|truncatechars:60 }}
+                                                    </small>
+                                                {% endif %}
+                                                <small class="text-muted">
+                                                    created at {{ group.created_at|date:"Y/m/d" }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted d-block">Creator</small>
+                                            <strong class="d-block">
+                                                {% if group.creator == user %}You{% else %}{{ group.creator.username }}{% endif %}
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info text-center py-4 my-3">
+                            <i class="bi bi-info-circle-fill fs-4 me-2"></i>
+                            You are not a member of any groups yet...
+                            <div class="mt-3">
+                                <a href="{% url 'core:group_create' %}" class="btn btn-primary btn-sm">
+                                    Create new group
+                                </a>
+                                or
+                                <a href="{% url 'core:home' %}" class="btn btn-outline-primary btn-sm">
+                                    View Groups
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- My friends (new section) -->
+                    <h5 class="mt-5 mb-4 fw-semibold border-bottom pb-2">
+                        My friends
+                        <span class="badge bg-success rounded-pill ms-2">{{ friends.count|default:0 }}</span>
+                    </h5>
+
+                    {% if friends.exists %}
+                        <div class="list-group list-group-flush">
+                        {% for friend in friends %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle p-3 me-3">
+                                            {% if friend.profile_photo %}
+                                                <img src="{{ friend.profile_photo.url }}"
+                                                        alt="{{ friend.username }}"
+                                                        class="rounded-circle"
+                                                        style="width: 36px; height: 36px; object-fit: cover;">
+                                            {% else %}
+                                                <i class="bi bi-person-fill fs-4 text-primary"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">{{ friend.get_full_name|default:friend.username }}</h6>
+                                            <small class="text-muted d-block">@{{ friend.username }}</small>
+                                        </div>
+                                    </div>
+                                    {% comment %}
+                                    <!-- TODO: Show Frindship date -->
+                                    <div class="text-end">
+                                        <small class="text-muted">Since</small>
+                                        <div class="small text-success">
+                                            {{ friend.friends.through.objects.filter(from_user=user, to_user=friend).first.created_at|date:"Y/m/d"|default:"—" }}
+                                        </div>
+                                    </div>
+                                    {% endcomment %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light text-center py-4 my-3 border">
+                            <i class="bi bi-people-fill fs-4 text-muted me-2"></i>
+                            You don't have any friends yet...
+                            <div class="mt-3">
+                                <a href="{% url 'accounts:search_users' %}" class="btn btn-outline-success btn-sm">
+                                    Find friends
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                {% if request.user.id == user.id %}
+                <!-- card footer -->
+                <div class="card-footer bg-light text-center py-4">
+                    <a href="{% url 'accounts:profile_edit' user.id %}" class="btn btn-outline-primary px-4">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Edit Profile
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Simple copy to clipboard script -->
+<script>
+function copyFriendLink() {
+    const btn = document.getElementById('copyFriendBtn');
+    const linkInput = document.getElementById('friendLink');
+    
+    if (!linkInput || !linkInput.value) {
+        alert('Friend link not found!');
+        return;
+    }
+
+    const fullLink = window.location.origin + linkInput.value;
+
+    navigator.clipboard.writeText(fullLink)
+        .then(() => {
+            btn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Copied!';
+            btn.classList.remove('btn-light');
+            btn.classList.add('btn-success');
+
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-link-45deg me-2"></i>Friend link';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-light');
+            }, 3000);
+        })
+        .catch(err => {
+            console.error('Failed to copy: ', err);
+            alert('Could not copy.\nLink: ' + fullLink);
+        });
+}
+</script>
+
+{% endblock %}
